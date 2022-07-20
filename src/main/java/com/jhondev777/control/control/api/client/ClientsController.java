@@ -11,41 +11,34 @@ import java.util.List;
 @RequestMapping("/clients")
 public class ClientsController {
 
-    private final ClientRepository clientRepository;
+    private final ClientService clientService;
 
-    public ClientsController(ClientRepository clientRepository) {
-        this.clientRepository = clientRepository;
+    public ClientsController(ClientService clientService) {
+        this.clientService = clientService;
     }
 
     @GetMapping
     public List<Client> getClients() {
-        return clientRepository.findAll();
+        return clientService.getAllClients();
     }
 
     @GetMapping("/{id}")
     public Client getClient(@PathVariable Long id) {
-        return clientRepository.findById(id).orElseThrow(RuntimeException::new);
+        return clientService.getClient(id);
     }
 
     @PostMapping
     public ResponseEntity createClient(@RequestBody Client client) throws URISyntaxException {
-        Client savedClient = clientRepository.save(client);
-        return ResponseEntity.created(new URI("/clients/" + savedClient.getId())).body(savedClient);
+        return clientService.createClient(client);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity updateClient(@PathVariable Long id, @RequestBody Client client) {
-        Client currentClient = clientRepository.findById(id).orElseThrow(RuntimeException::new);
-        currentClient.setName(client.getName());
-        currentClient.setEmail(client.getEmail());
-        currentClient = clientRepository.save(client);
-
-        return ResponseEntity.ok(currentClient);
-    }
+    @PatchMapping("/{id}")
+    public Client updateClient (@PathVariable Long id, @RequestBody Client client){
+        return clientService.updateClient(id, client);
+    };
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteClient(@PathVariable Long id) {
-        clientRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        return clientService.deleteClient(id);
     }
 }
